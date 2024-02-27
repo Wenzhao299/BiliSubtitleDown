@@ -60,7 +60,7 @@ class SubtitleDownload:
         pagelist = len(response.json()['data'])
         print(f"当前视频共有分集：{pagelist}")
         page = int(input("请选择集数：")) - 1
-        while page <= 0 or page > pagelist:
+        while page < 0 or page > pagelist:
             page = int(input("选择集数超出范围，请重新输入：")) - 1
         return page
 

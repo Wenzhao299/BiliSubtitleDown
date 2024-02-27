@@ -1,10 +1,9 @@
 import requests
-import json
 
 class SubtitleDownload:
-    def __init__(self, bvid: str, p_num, cookie: str):
+    def __init__(self, bvid: str, page, cookie: str):
         self.bvid = bvid
-        self.p_num = p_num
+        self.page = page
         self.pagelist_api = "https://api.bilibili.com/x/player/pagelist"
         self.subtitle_api = "https://api.bilibili.com/x/player/v2"
         self.headers = {
@@ -39,7 +38,7 @@ class SubtitleDownload:
             m = int(input("请输入下载的字幕序号："))
             return ['https:' + subtitles[m-1]['subtitle_url']]
         else:
-            print("获取字幕列表失败，当前没有可下载的字幕，或检查cookie是否正确。")
+            print("获取字幕列表失败，当前没有可下载的字幕，或检查cookie是否正确")
             return None
         return []
     
@@ -56,19 +55,22 @@ class SubtitleDownload:
 
     def _get_pagelist(self):
         response = requests.get(self.pagelist_api, params = {'bvid': self.bvid}, headers = self.headers)
-        return len(response.json()['data'])
+        pagelist = len(response.json()['data'])
+        print(f"当前视频共有分集：{pagelist}")
+        page = int(input("请选择集数：")) - 1
+        return page
 
     def download_subtitle(self):
-        with open('settings.json') as f:
-            cookie = json.load(f)['cookie']
-        self.headers['cookie'] = cookie
-        subtitle_list = self._get_subtitle(self._get_player_list()[self.p_num])
+        # self.__init__()
+        self.page = self._get_pagelist()
+        subtitle_list = self._get_subtitle(self._get_player_list()[self.page])
         if subtitle_list:
             text_list = [x['content'] for x in subtitle_list]
             text = ' '.join(text_list)
+            print("字幕获取成功\n")
             return text
         else:
-            text = "该视频没有可供下载的字幕。"
+            text = "该视频没有可供下载的字幕"
             return text
     
 class SubtitleDownloadError(Exception):

@@ -36,6 +36,8 @@ class SubtitleDownload:
                 print(str(n) + '.' + x['lan_doc'])
                 n = n+1
             m = int(input("请输入下载的字幕序号："))
+            while m <= 0 or m > n-1:
+                m = int(input("选择字幕序号超出范围，请重新输入："))
             return ['https:' + subtitles[m-1]['subtitle_url']]
         else:
             print("获取字幕列表失败，当前没有可下载的字幕，或检查cookie是否正确")
@@ -58,6 +60,8 @@ class SubtitleDownload:
         pagelist = len(response.json()['data'])
         print(f"当前视频共有分集：{pagelist}")
         page = int(input("请选择集数：")) - 1
+        while page <= 0 or page > pagelist:
+            page = int(input("选择集数超出范围，请重新输入：")) - 1
         return page
 
     def download_subtitle(self):

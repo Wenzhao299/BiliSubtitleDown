@@ -1,3 +1,4 @@
+import math
 import requests
 
 class SubtitleDownload:
@@ -69,10 +70,32 @@ class SubtitleDownload:
         self.page = self._get_pagelist()
         subtitle_list = self._get_subtitle(self._get_player_list()[self.page])
         if subtitle_list:
-            text_list = [x['content'] for x in subtitle_list]
-            text = ' '.join(text_list)
+            srt = ''
+            content = ''
+            for x in subtitle_list:
+                # 获取纯文本内容
+                content += x['content'] + ' '
+                # 获取srt格式内容
+                startTime = x['from']
+                stopTime = x['to']
+                sid = x['sid']
+                srt += '{}\n'.format(sid)
+                hour = math.floor(startTime) // 3600
+                minute = (math.floor(startTime) - hour * 3600) // 60
+                sec = math.floor(startTime) - hour * 3600 - minute * 60
+                minisec = int(math.modf(startTime)[0] * 1000)  # 处理开始时间
+                srt += str(hour).zfill(2) + ':' + str(minute).zfill(2) + ':' + str(sec).zfill(2) + ',' + str(minisec).zfill(3)  # 将数字填充0并按照格式写入
+                srt += ' --> '
+                hour = math.floor(stopTime) // 3600
+                minute = (math.floor(stopTime) - hour * 3600) // 60
+                sec = math.floor(stopTime) - hour * 3600 - minute * 60
+                minisec = int(math.modf(stopTime)[0] * 1000)
+                # minisec = abs(int(math.modf(stopTime)[0] * 1000 - 1))  # 此处减1是为了防止两个字幕同时出现，可选是否使用
+                srt += str(hour).zfill(2) + ':' + str(minute).zfill(2) + ':' + str(sec).zfill(2) + ',' + str(minisec).zfill(3)
+                srt += '\n' + x['content'] + '\n\n'  # 加入字幕文字
             print("字幕获取成功\n")
-            return text
+            # return content
+            return srt # return srt:返回srt格式字幕；return content:返回纯文本字幕
         else:
             text = "该视频没有可供下载的字幕"
             return text
